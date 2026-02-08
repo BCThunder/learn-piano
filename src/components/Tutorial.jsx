@@ -1,5 +1,3 @@
-import './Tutorial.css';
-
 const Tutorial = ({
   tutorialStep,
   selectedRoot,
@@ -219,7 +217,15 @@ const Tutorial = ({
   };
 
   return (
-    <div className="tutorial-panel">
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.95)',
+      borderRadius: '20px',
+      padding: '30px',
+      marginBottom: '30px',
+      maxWidth: '800px',
+      width: '100%',
+      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+    }}>
       {renderStep()}
     </div>
   );

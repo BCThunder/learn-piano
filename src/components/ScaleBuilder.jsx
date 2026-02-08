@@ -11,7 +11,6 @@ import {
   WHITE_KEY_MAP,
   BLACK_KEY_MAP
 } from '../utils/musicUtils';
-import './ScaleBuilder.css';
 
 const ScaleBuilder = () => {
   const [tutorialStep, setTutorialStep] = useState(0);
@@ -131,7 +130,16 @@ const ScaleBuilder = () => {
   };
 
   return (
-    <div className="scale-builder-root">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
       <Header />
 
       <Tutorial

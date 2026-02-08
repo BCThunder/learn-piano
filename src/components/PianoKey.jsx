@@ -1,5 +1,3 @@
-import './PianoKey.css';
-
 const PianoKey = ({
   note,
   isHighlighted,
@@ -43,22 +41,22 @@ const PianoKey = ({
     const totalWhiteKeysBefore = octaveOffset + whiteKeysBeforeInOctave;
     const leftPosition = (totalWhiteKeysBefore * whiteKeyWidth) + (whiteKeyWidth - blackKeyWidth / 2);
 
-    const classNames = ["piano-key", "black"];
-    if (isActive) classNames.push('active');
-    if (isUserSelected) classNames.push('user-selected');
-    if (isHighlighted) classNames.push('highlighted');
-    if (isRoot) classNames.push('root');
-
     return (
       <div
         onClick={onClick}
-        className={classNames.join(' ')}
         style={{
           ...baseStyle,
           width: `${blackKeyWidth}px`,
           height: '160px',
+          background: isActive ? '#4b5563' : isUserSelected ? '#059669' : isHighlighted ? '#5568d3' : isRoot ? '#f59e0b' : '#1a1a1a',
+          border: '2px solid #000',
+          borderRadius: '0 0 6px 6px',
           left: `${leftPosition}px`,
-          boxShadow: isActive ? 'inset 0 0 20px rgba(0,0,0,0.5)' : '0 4px 8px rgba(0,0,0,0.3)'
+          top: 0,
+          zIndex: 10,
+          padding: '8px',
+          boxShadow: isActive ? 'inset 0 0 20px rgba(0,0,0,0.5)' : '0 4px 8px rgba(0,0,0,0.3)',
+          transform: isActive ? 'translateY(2px)' : 'none'
         }}
         onMouseEnter={(e) => {
           if (!isActive) {
@@ -71,28 +69,38 @@ const PianoKey = ({
           }
         }}
       >
-        <div className="note-name" style={{ fontSize: '11px', color: 'white', marginBottom: '5px', fontWeight: 600 }}>{note.name}</div>
-        <div className="keyboard-label" style={{ fontSize: '9px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>{keyboardLabel}</div>
+        <div style={{
+          fontSize: '11px',
+          fontWeight: '600',
+          color: 'white',
+          marginBottom: '5px'
+        }}>
+          {note.name}
+        </div>
+        <div style={{
+          fontSize: '9px',
+          color: 'rgba(255,255,255,0.7)',
+          fontWeight: '600'
+        }}>
+          {keyboardLabel}
+        </div>
       </div>
     );
   } else {
     // White key styles
-    const classNames = ["piano-key", "white"];
-    if (isActive) classNames.push('active');
-    if (isUserSelected) classNames.push('user-selected');
-    if (isHighlighted) classNames.push('highlighted');
-    if (isRoot) classNames.push('root');
-
     return (
       <div
         onClick={onClick}
-        className={classNames.join(' ')}
         style={{
           ...baseStyle,
           width: '60px',
           height: '240px',
+          background: isActive ? '#e5e7eb' : isUserSelected ? '#10b981' : isHighlighted ? '#667eea' : isRoot ? '#fbbf24' : 'white',
+          border: '2px solid #1a1a1a',
+          borderRadius: '0 0 8px 8px',
           padding: '10px',
-          boxShadow: isActive ? 'inset 0 0 20px rgba(0,0,0,0.2)' : 'none'
+          boxShadow: isActive ? 'inset 0 0 20px rgba(0,0,0,0.2)' : 'none',
+          transform: isActive ? 'translateY(2px)' : 'none'
         }}
         onMouseEnter={(e) => {
           if (!isActive) {
@@ -105,8 +113,21 @@ const PianoKey = ({
           }
         }}
       >
-        <div className="note-name" style={{ fontSize: '12px', marginBottom: '5px', fontWeight: 600, color: isUserSelected || isHighlighted || isRoot ? 'white' : '#9ca3af' }}>{note.name}</div>
-        <div className="keyboard-label" style={{ fontSize: '10px', fontWeight: 600, color: isUserSelected || isHighlighted || isRoot ? 'rgba(255,255,255,0.8)' : '#d1d5db' }}>{keyboardLabel}</div>
+        <div style={{
+          fontSize: '12px',
+          fontWeight: '600',
+          color: isUserSelected || isHighlighted || isRoot ? 'white' : '#9ca3af',
+          marginBottom: '5px'
+        }}>
+          {note.name}
+        </div>
+        <div style={{
+          fontSize: '10px',
+          color: isUserSelected || isHighlighted || isRoot ? 'rgba(255,255,255,0.8)' : '#d1d5db',
+          fontWeight: '600'
+        }}>
+          {keyboardLabel}
+        </div>
       </div>
     );
   }
