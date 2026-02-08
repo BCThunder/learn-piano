@@ -1,0 +1,81 @@
+.piano-key {
+    cursor: pointer;
+    transition: all 0.1s;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    user-select: none;
+}
+
+.piano-key.white {
+    width: 60px;
+    height: 240px;
+    background: white;
+    border: 2px solid #1a1a1a;
+    border-radius: 0 0 8px 8px;
+    padding: 10px;
+}
+
+.piano-key.black {
+    position: absolute;
+    width: 36px;
+    height: 160px;
+    border: 2px solid #000;
+    border-radius: 0 0 6px 6px;
+    padding: 8px;
+    z-index: 10;
+    top: 0;
+}
+
+.piano-key .note-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.piano-key .keyboard-label {
+    font-weight: 600;
+}
+
+.piano-key.active {
+    transform: translateY(2px);
+}
+
+.piano-key.user-selected.white,
+.piano-key.highlighted.white,
+.piano-key.root.white {
+    color: white;
+}
+
+/* color modifier classes */
+.piano-key.white.root {
+    background: #fbbf24;
+}
+
+.piano-key.white.highlighted {
+    background: #667eea;
+}
+
+.piano-key.white.user-selected {
+    background: #10b981;
+}
+
+.piano-key.white.active {
+    background: #e5e7eb;
+}
+
+.piano-key.black.root {
+    background: #f59e0b;
+}
+
+.piano-key.black.highlighted {
+    background: #5568d3;
+}
+
+.piano-key.black.user-selected {
+    background: #059669;
+}
+
+.piano-key.black.active {
+    background: #4b5563;
+}
