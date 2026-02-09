@@ -1,4 +1,5 @@
 import PianoKey from './PianoKey';
+import './styles.css';
 
 const Piano = ({
   notes,
@@ -11,22 +12,9 @@ const Piano = ({
   showLegend = true
 }) => {
   return (
-    <div style={{
-      background: 'rgba(255, 255, 255, 0.95)',
-      borderRadius: '20px',
-      padding: '40px',
-      boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-      maxWidth: '1200px',
-      width: '100%'
-    }}>
-      <div style={{
-        position: 'relative',
-        height: '280px',
-        display: 'flex',
-        justifyContent: 'center'
-      }}>
-        {/* White keys container */}
-        <div style={{ display: 'flex', position: 'relative' }}>
+    <div className="card piano-container">
+      <div className="piano-wrapper">
+        <div className="piano-keys-container">
           {notes.filter(n => !n.isBlack).map((note) => (
             <PianoKey
               key={note.index}
@@ -40,7 +28,6 @@ const Piano = ({
             />
           ))}
 
-          {/* Black keys overlay */}
           {notes.filter(n => n.isBlack).map((note) => (
             <PianoKey
               key={note.index}
@@ -56,50 +43,23 @@ const Piano = ({
         </div>
       </div>
 
-      {/* Legend */}
       {showLegend && (
-        <div style={{
-          marginTop: '30px',
-          display: 'flex',
-          gap: '20px',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          fontSize: '14px',
-          color: '#666'
-        }}>
+        <div className="legend">
           {selectedRoot !== null && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                width: '20px',
-                height: '20px',
-                background: '#fbbf24',
-                borderRadius: '4px',
-                border: '2px solid #1a1a1a'
-              }}></div>
+            <div className="legend-item">
+              <div className="legend-color root"></div>
               Root Note
             </div>
           )}
           {highlightedNotes.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                width: '20px',
-                height: '20px',
-                background: '#667eea',
-                borderRadius: '4px',
-                border: '2px solid #1a1a1a'
-              }}></div>
+            <div className="legend-item">
+              <div className="legend-color scale"></div>
               Scale Notes
             </div>
           )}
           {userNotes.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                width: '20px',
-                height: '20px',
-                background: '#10b981',
-                borderRadius: '4px',
-                border: '2px solid #1a1a1a'
-              }}></div>
+            <div className="legend-item">
+              <div className="legend-color selected"></div>
               Your Selection
             </div>
           )}

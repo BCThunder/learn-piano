@@ -165,11 +165,18 @@ Here are ideas to expand this project and showcase more skills:
 ## Code Structure
 
 ```
-scale-builder.jsx       # Main React component (standalone)
-index.html             # Complete single-file app (ready to run)
+index.html              # Complete single-file app (ready to run)
+ScaleBuilder.jsx        # Main app component
+components/
+  ├── Header.jsx        # App title and description
+  ├── Tutorial.jsx      # Tutorial step display and controls
+  ├── Piano.jsx         # Piano keyboard container
+  └── PianoKey.jsx      # Individual piano key component
+utils/
+  └── musicUtils.js     # Helper functions for music theory and audio
 ```
 
-The `index.html` file includes everything needed to run the app - no build process required. This makes it perfect for quick demos and sharing.
+The `index.html` file includes everything needed to run the app - no build process required. The separate component files show the modular structure for development and can be used in a proper React build setup.
 
 ## Customization Ideas
 
