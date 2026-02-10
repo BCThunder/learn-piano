@@ -356,6 +356,11 @@ body {
   background: #10b981;
 }
 
+.legend-color.selectable-root {
+  background: #dbeafe;
+  border: 2px dashed #3b82f6;
+}
+
 /* Header */
 .header h1 {
   margin: 0 0 10px 0;
@@ -624,6 +629,25 @@ body {
 .key-keyboard-label.black {
   color: rgba(255, 255, 255, 0.7);
   font-size: 9px;
+}
+
+.piano-key.white.selectable-root {
+  background: #dbeafe;
+  border: 2px dashed #3b82f6;
+}
+
+.piano-key.white.selectable-root:hover {
+  background: #bfdbfe;
+}
+
+.piano-key.black.selectable-root {
+  background: #334155;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 2px dashed #60a5fa;
+}
+
+.piano-key.black.selectable-root:hover {
+  background: #475569;
 }
 
 /* Legend */

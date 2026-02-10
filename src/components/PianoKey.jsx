@@ -1,4 +1,4 @@
-import './styles.css';
+import './styles.css'
 
 const PianoKey = ({
   note,
@@ -6,7 +6,10 @@ const PianoKey = ({
   isUserSelected,
   isRoot,
   isActive,
-  onClick,
+  isSelectableRoot,
+  onMouseDown,
+  onMouseUp,
+  onMouseLeave,
   keyboardLabel
 }) => {
   if (note.isBlack) {
@@ -38,10 +41,13 @@ const PianoKey = ({
     else if (isUserSelected) stateClass = 'selected';
     else if (isHighlighted) stateClass = 'highlighted';
     else if (isRoot) stateClass = 'root';
+    else if (isSelectableRoot) stateClass = 'selectable-root';
 
     return (
       <div
-        onClick={onClick}
+        onMouseDown={() => onMouseDown(note)}
+        onMouseUp={() => onMouseUp(note)}
+        onMouseLeave={() => onMouseLeave(note)}
         className={`piano-key black ${stateClass}`}
         style={{ left: `${leftPosition}px` }}
       >
@@ -60,12 +66,15 @@ const PianoKey = ({
     else if (isUserSelected) stateClass = 'selected';
     else if (isHighlighted) stateClass = 'highlighted';
     else if (isRoot) stateClass = 'root';
+    else if (isSelectableRoot) stateClass = 'selectable-root';
 
-    const isColored = isUserSelected || isHighlighted || isRoot;
+    const isColored = isUserSelected || isHighlighted || isRoot || isSelectableRoot;
 
     return (
       <div
-        onClick={onClick}
+        onMouseDown={() => onMouseDown(note)}
+        onMouseUp={() => onMouseUp(note)}
+        onMouseLeave={() => onMouseLeave(note)}
         className={`piano-key white ${stateClass}`}
       >
         <div className={`key-note-name white ${isColored ? 'colored' : ''}`}>

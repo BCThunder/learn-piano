@@ -1,16 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import * as Tone from 'tone';
+import './styles.css'
 import Header from './Header';
 import Tutorial from './Tutorial';
 import Piano from './Piano';
-import './styles.css';
 import {
   generateNotes,
   buildScale,
   getKeyboardLabel,
-  playNote,
-  SCALE_PATTERNS,
-  WHITE_KEY_MAP,
-  BLACK_KEY_MAP
+  initializePiano,
+  SCALE_PATTERNS
 } from '../utils/musicUtils';
 
 const ScaleBuilder = () => {
@@ -19,43 +18,58 @@ const ScaleBuilder = () => {
   const [selectedScale, setSelectedScale] = useState(null);
   const [userNotes, setUserNotes] = useState([]);
   const [highlightedNotes, setHighlightedNotes] = useState([]);
-  const [activeNote, setActiveNote] = useState(null);
-  const [audioContext, setAudioContext] = useState(null);
 
   const notes = generateNotes();
 
-  // Initialize Web Audio API
+  // Initialize piano on component mount
   useEffect(() => {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    setAudioContext(ctx);
-    return () => ctx.close();
+    const initAudio = async () => {
+      try {
+        if (Tone.getContext().state !== "running") {
+          await Tone.start();
+        }
+        initializePiano();
+      } catch (error) {
+        console.error('Error initializing audio:', error);
+      }
+    };
+
+    initAudio();
   }, []);
 
-  // Handle note click
-  const handleNoteClick = useCallback((noteIndex) => {
-    // Play the note
-    playNote(noteIndex, audioContext, setActiveNote);
-
-    if (tutorialStep === 0) {
-      // Select root note
-      setSelectedRoot(noteIndex);
-      setTutorialStep(1);
+  // Handle note interaction (click or keyboard)
+  const handleNoteClick = useCallback((note) => {
+    // Always allow changing root note if clicking an octave 0 note
+    if (note.index < 12) {
+      // Clicked a selectable root note (first octave)
+      if (note.index !== selectedRoot) {
+        // Changing the root note
+        setSelectedRoot(note.index);
+        setUserNotes([]);
+        setHighlightedNotes([]);
+        // If already in scale selection, reset the tutorial flow
+        if (tutorialStep >= 2) {
+          setTutorialStep(1);
+          setSelectedScale(null);
+        }
+      }
+      // If already at a root and tutorialStep is 0, move to step 1
+      if (tutorialStep === 0) {
+        setTutorialStep(1);
+      }
     } else if (tutorialStep === 4) {
       // Practice mode - user building scale
       if (userNotes.length === 0) {
-        // First note must be the selected root
-        if (noteIndex === selectedRoot) {
-          setUserNotes([noteIndex]);
+        if (note.index === selectedRoot) {
+          setUserNotes([note.index]);
         }
-      } else if (!userNotes.includes(noteIndex)) {
-        const newUserNotes = [...userNotes, noteIndex];
+      } else if (!userNotes.includes(note.index)) {
+        const newUserNotes = [...userNotes, note.index];
         setUserNotes(newUserNotes);
 
-        // Check if scale is complete
         const correctScale = buildScale(selectedRoot, SCALE_PATTERNS[selectedScale]);
         if (newUserNotes.length === correctScale.length) {
-          // Check if correct
-          const isCorrect = newUserNotes.every((note, i) => note === correctScale[i]);
+          const isCorrect = newUserNotes.every((n, i) => n === correctScale[i]);
           setTimeout(() => {
             if (isCorrect) {
               alert('Perfect! You built the scale correctly! 🎉');
@@ -67,39 +81,7 @@ const ScaleBuilder = () => {
         }
       }
     }
-  }, [tutorialStep, selectedRoot, userNotes, selectedScale, audioContext]);
-
-  // Handle keyboard input
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const key = e.key.toLowerCase();
-
-      // Find white key
-      const whiteKeyIndex = WHITE_KEY_MAP.indexOf(key);
-      if (whiteKeyIndex !== -1) {
-        const whiteNotes = notes.filter(n => !n.isBlack);
-        if (whiteKeyIndex < whiteNotes.length) {
-          const note = whiteNotes[whiteKeyIndex];
-          handleNoteClick(note.index);
-        }
-        return;
-      }
-
-      // Find black key
-      const blackKeyIndex = BLACK_KEY_MAP.indexOf(key);
-      if (blackKeyIndex !== -1 && BLACK_KEY_MAP[blackKeyIndex] !== '') {
-        const blackNotes = notes.filter(n => n.isBlack);
-        const adjustedIndex = blackKeyIndex - (blackKeyIndex > 4 ? 1 : 0);
-        if (adjustedIndex < blackNotes.length) {
-          const note = blackNotes[adjustedIndex];
-          handleNoteClick(note.index);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [notes, handleNoteClick]);
+  }, [tutorialStep, selectedRoot, userNotes, selectedScale]);
 
   // Tutorial step handlers
   const showMajorPattern = () => {
@@ -152,11 +134,10 @@ const ScaleBuilder = () => {
         highlightedNotes={tutorialStep === 4 ? [] : highlightedNotes}
         userNotes={userNotes}
         selectedRoot={selectedRoot}
-        activeNote={activeNote}
-        onNoteClick={handleNoteClick}
         getKeyboardLabel={(note) => getKeyboardLabel(note, notes)}
+        onNoteClick={handleNoteClick}
       />
-    </div >
+    </div>
   );
 };
 

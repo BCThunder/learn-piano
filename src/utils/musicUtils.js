@@ -1,3 +1,5 @@
+import * as Tone from 'tone';
+
 // Note names
 export const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -20,29 +22,25 @@ export const generateNotes = () => {
         name: NOTE_NAMES[i],
         index: octave * 12 + i,
         isBlack: NOTE_NAMES[i].includes('#'),
-        octave: octave + 4
+        octave: octave + 4,
+        // Scientific pitch notation for Tone.js (e.g., "C4", "D#5")
+        noteName: `${NOTE_NAMES[i]}${octave + 4}`
       });
     }
   }
   return notes;
 };
 
-// Calculate frequency for a note
-export const getFrequency = (noteIndex) => {
-  // C4 is index 0, A4 (440Hz) is index 9
-  return 440 * Math.pow(2, (noteIndex - 9) / 12);
-};
-
 // Build scale from root note and pattern
 export const buildScale = (rootIndex, pattern) => {
   const scale = [rootIndex];
   let currentIndex = rootIndex;
-  
+
   for (const interval of pattern) {
     currentIndex += interval;
     scale.push(currentIndex);
   }
-  
+
   return scale;
 };
 
@@ -60,25 +58,72 @@ export const getKeyboardLabel = (note, notes) => {
   }
 };
 
-// Play a note using Web Audio API
-export const playNote = (noteIndex, audioContext, setActiveNote) => {
-  if (!audioContext) return;
+// Piano sampler instance (singleton)
+let piano = null;
+let currentlyPlayingNotes = new Map(); // Map of noteIndex -> noteName
 
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
+export const initializePiano = () => {
+  if (piano) return piano;
 
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
+  piano = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: "triangle" },
+    envelope: {
+      attack: 0.005,
+      decay: 0.15,
+      sustain: 0.3,
+      release: 1.2
+    }
+  }).toDestination();
 
-  oscillator.frequency.value = getFrequency(noteIndex);
-  oscillator.type = 'sine';
+  return piano;
+};
 
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+export const playNoteStart = async (note, setActiveNote, velocity = 0.9) => {
+  if (Tone.getContext().state !== "running") {
+    await Tone.start();
+  }
 
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + 0.5);
+  const synth = initializePiano();
+  synth.triggerAttack(note.noteName, undefined, velocity);
+  currentlyPlayingNotes.set(note.index, note.noteName);
+  setActiveNote?.(note.index);
+};
 
-  setActiveNote(noteIndex);
-  setTimeout(() => setActiveNote(null), 200);
+export const playNoteEnd = (note, setActiveNote) => {
+  if (!piano) return;
+
+  piano.triggerRelease(note.noteName);
+  currentlyPlayingNotes.delete(note.index);
+
+  // Only clear activeNote if no notes are playing
+  if (currentlyPlayingNotes.size === 0) {
+    setActiveNote?.(null);
+  }
+};
+
+export const playNoteOnce = (note, setActiveNote, duration = "8n", velocity = 0.9) => {
+  if (!piano) return;
+
+  piano.triggerAttackRelease(note.noteName, duration, undefined, velocity);
+
+  if (setActiveNote) {
+    setActiveNote(note.index);
+    setTimeout(
+      () => setActiveNote(null),
+      Tone.Time(duration).toMilliseconds()
+    );
+  }
+};
+
+// Check if a note is currently playing
+export const isNotePlaying = (noteIndex) => {
+  return currentlyPlayingNotes.has(noteIndex);
+};
+
+// Set the volume of the piano
+export const setVolume = (volumeValue) => {
+  if (!piano) return;
+  // Tone.js volume is in decibels, -30 to 0, so we convert 0-1 to -30 to 0
+  const db = volumeValue === 0 ? -Infinity : Math.log10(volumeValue) * 20;
+  piano.volume.value = db;
 };

@@ -1,4 +1,5 @@
 import './App.css'
+// import ScaleBuilder from './components/ScaleBuilder'
 import ScaleBuilder from './components/ScaleBuilder'
 
 function App() {
