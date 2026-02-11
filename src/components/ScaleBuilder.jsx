@@ -18,6 +18,9 @@ const ScaleBuilder = () => {
   const [selectedScale, setSelectedScale] = useState(null);
   const [userNotes, setUserNotes] = useState([]);
   const [highlightedNotes, setHighlightedNotes] = useState([]);
+  const [isRootLocked, setIsRootLocked] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [waitingForContinue, setWaitingForContinue] = useState(false);
 
   const notes = generateNotes();
 
@@ -39,29 +42,20 @@ const ScaleBuilder = () => {
 
   // Handle note interaction (click or keyboard)
   const handleNoteClick = useCallback((note) => {
-    // Always allow changing root note if clicking an octave 0 note
-    if (note.index < 12) {
-      // Clicked a selectable root note (first octave)
-      if (note.index !== selectedRoot) {
-        // Changing the root note
-        setSelectedRoot(note.index);
-        setUserNotes([]);
-        setHighlightedNotes([]);
-        // If already in scale selection, reset the tutorial flow
-        if (tutorialStep >= 2) {
-          setTutorialStep(1);
-          setSelectedScale(null);
-        }
-      }
-      // If already at a root and tutorialStep is 0, move to step 1
-      if (tutorialStep === 0) {
-        setTutorialStep(1);
-      }
-    } else if (tutorialStep === 4) {
-      // Practice mode - user building scale
+    // If waiting for user to continue after completing scale
+    if (waitingForContinue) {
+      setUserNotes([]);
+      setFeedback(null);
+      setWaitingForContinue(false);
+      return;
+    }
+
+    // Practice mode - user building scale (check this first)
+    if (tutorialStep === 4) {
       if (userNotes.length === 0) {
         if (note.index === selectedRoot) {
           setUserNotes([note.index]);
+          setFeedback(null); // Clear any previous feedback
         }
       } else if (!userNotes.includes(note.index)) {
         const newUserNotes = [...userNotes, note.index];
@@ -70,24 +64,34 @@ const ScaleBuilder = () => {
         const correctScale = buildScale(selectedRoot, SCALE_PATTERNS[selectedScale]);
         if (newUserNotes.length === correctScale.length) {
           const isCorrect = newUserNotes.every((n, i) => n === correctScale[i]);
-          setTimeout(() => {
-            if (isCorrect) {
-              alert('Perfect! You built the scale correctly! 🎉');
-            } else {
-              alert('Not quite right. Try again!');
-            }
-            setUserNotes([]);
-          }, 300);
+          if (isCorrect) {
+            setFeedback('success');
+          } else {
+            setFeedback('error');
+          }
+          setWaitingForContinue(true);
+        }
+      }
+    } else if (note.index < 12) {
+      // Allow changing root note if clicking an octave 0 note (lower octave)
+      // Only allow changing root if not locked
+      if (!isRootLocked) {
+        // Update the selected root note
+        setSelectedRoot(note.index);
+        // Advance to step 1 to show scale selection buttons
+        if (tutorialStep === 0) {
+          setTutorialStep(1);
         }
       }
     }
-  }, [tutorialStep, selectedRoot, userNotes, selectedScale]);
+  }, [tutorialStep, selectedRoot, userNotes, selectedScale, isRootLocked, waitingForContinue]);
 
   // Tutorial step handlers
   const showMajorPattern = () => {
     setSelectedScale('major');
     const scale = buildScale(selectedRoot, SCALE_PATTERNS.major);
     setHighlightedNotes(scale);
+    setIsRootLocked(true);
     setTutorialStep(2);
   };
 
@@ -95,13 +99,26 @@ const ScaleBuilder = () => {
     setSelectedScale('minor');
     const scale = buildScale(selectedRoot, SCALE_PATTERNS.minor);
     setHighlightedNotes(scale);
+    setIsRootLocked(true);
     setTutorialStep(3);
   };
 
   const startPractice = () => {
     setHighlightedNotes([]);
     setUserNotes([]);
+    setFeedback(null);
+    setWaitingForContinue(false);
     setTutorialStep(4);
+  };
+
+  const startOver = () => {
+    setTutorialStep(1);
+    setSelectedScale(null);
+    setUserNotes([]);
+    setHighlightedNotes([]);
+    setIsRootLocked(false);
+    setFeedback(null);
+    setWaitingForContinue(false);
   };
 
   const resetTutorial = () => {
@@ -110,6 +127,9 @@ const ScaleBuilder = () => {
     setSelectedScale(null);
     setUserNotes([]);
     setHighlightedNotes([]);
+    setIsRootLocked(false);
+    setFeedback(null);
+    setWaitingForContinue(false);
   };
 
   return (
@@ -122,9 +142,12 @@ const ScaleBuilder = () => {
         selectedScale={selectedScale}
         userNotes={userNotes}
         notes={notes}
+        feedback={feedback}
+        waitingForContinue={waitingForContinue}
         onShowMajorPattern={showMajorPattern}
         onShowMinorPattern={showMinorPattern}
         onStartPractice={startPractice}
+        onStartOver={startOver}
         onResetTutorial={resetTutorial}
         scalePatterns={SCALE_PATTERNS}
       />

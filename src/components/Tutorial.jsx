@@ -6,9 +6,12 @@ const Tutorial = ({
   selectedScale,
   userNotes,
   notes,
+  feedback,
+  waitingForContinue,
   onShowMajorPattern,
   onShowMinorPattern,
   onStartPractice,
+  onStartOver,
   onResetTutorial,
   scalePatterns
 }) => {
@@ -35,6 +38,9 @@ const Tutorial = ({
             <p>
               Great! Now let's learn about scale patterns. Scales are built using a pattern of intervals (semitones).
             </p>
+            <p className="tip">
+              💡 You can still change your root note by clicking any highlighted key in the lower octave before selecting a scale type.
+            </p>
             <div className="button-group">
               <button onClick={onShowMajorPattern} className="btn flex primary">
                 Show Major Pattern
@@ -54,7 +60,7 @@ const Tutorial = ({
               The major scale uses this pattern of semitones: <strong>2-2-1-2-2-2-1</strong>
             </p>
             <p>
-              Starting from your root note ({notes.find(n => n.index === selectedRoot)?.name}),
+              Starting from your locked root note ({notes.find(n => n.index === selectedRoot)?.name}),
               move up 2 semitones, then 2, then 1, then 2, then 2, then 2, then 1 to complete the scale.
             </p>
             <p className="tip">
@@ -66,6 +72,9 @@ const Tutorial = ({
               </button>
               <button onClick={onStartPractice} className="btn flex success">
                 Practice Building
+              </button>
+              <button onClick={onStartOver} className="btn flex neutral">
+                Start Over
               </button>
             </div>
           </div>
@@ -79,7 +88,7 @@ const Tutorial = ({
               The natural minor scale uses this pattern: <strong>2-1-2-2-1-2-2</strong>
             </p>
             <p>
-              Starting from your root note ({notes.find(n => n.index === selectedRoot)?.name}),
+              Starting from your locked root note ({notes.find(n => n.index === selectedRoot)?.name}),
               move up 2 semitones, then 1, then 2, then 2, then 1, then 2, then 2 to complete the scale.
             </p>
             <p className="tip">
@@ -91,6 +100,9 @@ const Tutorial = ({
               </button>
               <button onClick={onStartPractice} className="btn flex success">
                 Practice Building
+              </button>
+              <button onClick={onStartOver} className="btn flex neutral">
+                Start Over
               </button>
             </div>
           </div>
@@ -107,13 +119,44 @@ const Tutorial = ({
               Progress: {userNotes.length}/8 notes selected
             </p>
             <div className="progress-display">
-              <div className="label">
-                Your scale so far:
-              </div>
-              <div className="scale-notes">
-                {userNotes.length === 0
-                  ? 'Click the root note to start...'
-                  : userNotes.map(i => notes.find(n => n.index === i)?.name).join(' → ')}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
+                <div style={{ flex: 1 }}>
+                  <div className="label">
+                    Your scale so far:
+                  </div>
+                  <div className="scale-notes">
+                    {userNotes.length === 0
+                      ? 'Click the root note to start...'
+                      : userNotes.map(i => notes.find(n => n.index === i)?.name).join(' → ')}
+                  </div>
+                </div>
+                {feedback && (
+                  <div style={{
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    backgroundColor: feedback === 'success' ? '#4caf50' : '#f44336',
+                    color: 'white',
+                    minWidth: '200px',
+                    textAlign: 'center'
+                  }}>
+                    <div>
+                      {feedback === 'success'
+                        ? '🎉 Perfect! You built the scale correctly!'
+                        : '❌ Not quite right. Try again!'}
+                    </div>
+                    {waitingForContinue && (
+                      <div style={{
+                        marginTop: '8px',
+                        fontSize: '0.9em',
+                        fontWeight: 'normal',
+                        fontStyle: 'italic'
+                      }}>
+                        Press any key to continue
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             <button onClick={onResetTutorial} className="btn full-width neutral">
