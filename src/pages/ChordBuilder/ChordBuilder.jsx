@@ -1,21 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
 import * as Tone from 'tone';
-import './styles.css'
-import Header from './Header';
-import Tutorial from './Tutorial';
-import Piano from './Piano';
+import Header from '../../components/Header';
+import ChordTutorial from '../../components/ChordTutorial';
+import Piano from '../../components/Piano';
 import {
   generateNotes,
-  buildScale,
+  buildChord,
   getKeyboardLabel,
   initializePiano,
-  SCALE_PATTERNS
-} from '../utils/musicUtils';
+  CHORD_PATTERNS
+} from '../../utils/musicUtils';
 
-const ScaleBuilder = () => {
+const ChordBuilder = () => {
   const [tutorialStep, setTutorialStep] = useState(0);
   const [selectedRoot, setSelectedRoot] = useState(null);
-  const [selectedScale, setSelectedScale] = useState(null);
+  const [selectedChord, setSelectedChord] = useState(null);
   const [userNotes, setUserNotes] = useState([]);
   const [highlightedNotes, setHighlightedNotes] = useState([]);
   const [isRootLocked, setIsRootLocked] = useState(false);
@@ -42,7 +41,7 @@ const ScaleBuilder = () => {
 
   // Handle note interaction (click or keyboard)
   const handleNoteClick = useCallback((note) => {
-    // If waiting for user to continue after completing scale
+    // If waiting for user to continue after completing chord
     if (waitingForContinue) {
       setUserNotes([]);
       setFeedback(null);
@@ -50,7 +49,7 @@ const ScaleBuilder = () => {
       return;
     }
 
-    // Practice mode - user building scale (check this first)
+    // Practice mode - user building chord (check this first)
     if (tutorialStep === 4) {
       if (userNotes.length === 0) {
         if (note.index === selectedRoot) {
@@ -61,9 +60,9 @@ const ScaleBuilder = () => {
         const newUserNotes = [...userNotes, note.index];
         setUserNotes(newUserNotes);
 
-        const correctScale = buildScale(selectedRoot, SCALE_PATTERNS[selectedScale]);
-        if (newUserNotes.length === correctScale.length) {
-          const isCorrect = newUserNotes.every((n, i) => n === correctScale[i]);
+        const correctChord = buildChord(selectedRoot, CHORD_PATTERNS[selectedChord]);
+        if (newUserNotes.length === correctChord.length) {
+          const isCorrect = newUserNotes.every((n, i) => n === correctChord[i]);
           if (isCorrect) {
             setFeedback('success');
           } else {
@@ -78,27 +77,27 @@ const ScaleBuilder = () => {
       if (!isRootLocked) {
         // Update the selected root note
         setSelectedRoot(note.index);
-        // Advance to step 1 to show scale selection buttons
+        // Advance to step 1 to show chord selection buttons
         if (tutorialStep === 0) {
           setTutorialStep(1);
         }
       }
     }
-  }, [tutorialStep, selectedRoot, userNotes, selectedScale, isRootLocked, waitingForContinue]);
+  }, [tutorialStep, selectedRoot, userNotes, selectedChord, isRootLocked, waitingForContinue]);
 
   // Tutorial step handlers
   const showMajorPattern = () => {
-    setSelectedScale('major');
-    const scale = buildScale(selectedRoot, SCALE_PATTERNS.major);
-    setHighlightedNotes(scale);
+    setSelectedChord('major');
+    const chord = buildChord(selectedRoot, CHORD_PATTERNS.major);
+    setHighlightedNotes(chord);
     setIsRootLocked(true);
     setTutorialStep(2);
   };
 
   const showMinorPattern = () => {
-    setSelectedScale('minor');
-    const scale = buildScale(selectedRoot, SCALE_PATTERNS.minor);
-    setHighlightedNotes(scale);
+    setSelectedChord('minor');
+    const chord = buildChord(selectedRoot, CHORD_PATTERNS.minor);
+    setHighlightedNotes(chord);
     setIsRootLocked(true);
     setTutorialStep(3);
   };
@@ -113,7 +112,7 @@ const ScaleBuilder = () => {
 
   const startOver = () => {
     setTutorialStep(1);
-    setSelectedScale(null);
+    setSelectedChord(null);
     setUserNotes([]);
     setHighlightedNotes([]);
     setIsRootLocked(false);
@@ -124,7 +123,7 @@ const ScaleBuilder = () => {
   const resetTutorial = () => {
     setTutorialStep(0);
     setSelectedRoot(null);
-    setSelectedScale(null);
+    setSelectedChord(null);
     setUserNotes([]);
     setHighlightedNotes([]);
     setIsRootLocked(false);
@@ -133,13 +132,16 @@ const ScaleBuilder = () => {
   };
 
   return (
-    <div className="app-container">
-      <Header />
+    <>
+      <Header
+        title="Chord Builder"
+        subtitle="Learn music chords through interactive building"
+      />
 
-      <Tutorial
+      <ChordTutorial
         tutorialStep={tutorialStep}
         selectedRoot={selectedRoot}
-        selectedScale={selectedScale}
+        selectedChord={selectedChord}
         userNotes={userNotes}
         notes={notes}
         feedback={feedback}
@@ -149,7 +151,7 @@ const ScaleBuilder = () => {
         onStartPractice={startPractice}
         onStartOver={startOver}
         onResetTutorial={resetTutorial}
-        scalePatterns={SCALE_PATTERNS}
+        chordPatterns={CHORD_PATTERNS}
       />
 
       <Piano
@@ -160,8 +162,8 @@ const ScaleBuilder = () => {
         getKeyboardLabel={(note) => getKeyboardLabel(note, notes)}
         onNoteClick={handleNoteClick}
       />
-    </div>
+    </>
   );
 };
 
-export default ScaleBuilder;
+export default ChordBuilder;

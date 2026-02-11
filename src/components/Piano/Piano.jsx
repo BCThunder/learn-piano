@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import './styles.css'
+import './Piano.css';
 import PianoKey from './PianoKey';
 import {
   playNoteStart,
@@ -7,7 +7,7 @@ import {
   setVolume,
   WHITE_KEY_MAP,
   BLACK_KEY_MAP
-} from '../utils/musicUtils';
+} from '../../utils/musicUtils';
 
 const Piano = ({
   notes,

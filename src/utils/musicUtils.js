@@ -13,6 +13,12 @@ export const SCALE_PATTERNS = {
   minor: [2, 1, 2, 2, 1, 2, 2]
 };
 
+// Chord patterns in semitones from root
+export const CHORD_PATTERNS = {
+  major: [0, 4, 7],      // Root, Major 3rd, Perfect 5th
+  minor: [0, 3, 7]       // Root, Minor 3rd, Perfect 5th
+};
+
 // Generate 2 octaves of notes (24 keys starting from C)
 export const generateNotes = () => {
   const notes = [];
@@ -42,6 +48,11 @@ export const buildScale = (rootIndex, pattern) => {
   }
 
   return scale;
+};
+
+// Build chord from root note and pattern
+export const buildChord = (rootIndex, pattern) => {
+  return pattern.map(interval => rootIndex + interval);
 };
 
 // Get keyboard label for note

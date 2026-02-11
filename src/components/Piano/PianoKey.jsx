@@ -1,5 +1,3 @@
-import './styles.css'
-
 const PianoKey = ({
   note,
   isHighlighted,

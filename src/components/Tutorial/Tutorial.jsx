@@ -1,4 +1,4 @@
-import './styles.css';
+import './Tutorial.css';
 
 const Tutorial = ({
   tutorialStep,
